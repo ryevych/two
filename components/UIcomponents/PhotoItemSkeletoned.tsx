@@ -8,6 +8,7 @@ import React from "react";
 import { IPhotoItem } from "../interfaces";
 import FavoritesComponent from "./FavoritesComponent";
 import useItemAnimation from "../../hooks/animation";
+import { Skeleton } from "moti/skeleton";
 import Animated, {
   FadeIn,
   Layout,
@@ -34,7 +35,7 @@ const skeletonCommonProps = {
   },
 } as const;
 
-function PhotoItem({
+function PhotoItemSkeletoned({
   item,
   handleItemPress,
   animateItemOnLongPress,
@@ -82,38 +83,59 @@ function PhotoItem({
           }
           handleItemPress(item.id);
         }}>
-        {!isLoading ? (
-          <Animated.Image
-            style={[styles.image, animateItemOnLongPress && animatedStyle]}
-            source={{ uri: item.thumbnailUrl }}
-            layout={Layout}
-            entering={FadeIn.duration(ITEM_FADEIN_DURATION)}
-          />
-        ) : null}
-        <View style={styles.infoBlock}>
-          <View style={[styles.textContainer, { width: itemWidth * 0.6 }]}>
+        <Skeleton.Group show={isLoading}>
+          <Skeleton
+            width={itemWidth * 0.8}
+            height={itemWidth * 0.8}
+            radius={"square"}
+            {...skeletonCommonProps}
+          >
             {!isLoading ? (
-              <Animated.Text
-                style={styles.text}
-                numberOfLines={2}
+              <Animated.Image
+                style={[styles.image, animateItemOnLongPress && animatedStyle]}
+                source={{ uri: item.thumbnailUrl }}
                 layout={Layout}
                 entering={FadeIn.duration(ITEM_FADEIN_DURATION)}
-              >
-                {item.title}
-              </Animated.Text>
+              />
             ) : null}
+          </Skeleton>
+          <View style={styles.infoBlock}>
+            <View style={[styles.textContainer, { width: itemWidth * 0.6 }]}>
+              <Skeleton
+                width={itemWidth * 0.6}
+                height={40}
+                {...skeletonCommonProps}
+              >
+                {!isLoading ? (
+                  <Animated.Text
+                    style={styles.text}
+                    numberOfLines={2}
+                    layout={Layout}
+                    entering={FadeIn.duration(ITEM_FADEIN_DURATION)}
+                  >
+                    {item.title}
+                  </Animated.Text>
+                ) : null}
+              </Skeleton>
+            </View>
+            <Skeleton
+              width={35}
+              height={35}
+              radius={17.5}
+              {...skeletonCommonProps}
+            >
+              {!isLoading ? (
+                <FavoritesComponent item={item} style={styles.favorites} />
+              ) : null}
+            </Skeleton>
           </View>
-          {!isLoading ? (
-            <FavoritesComponent item={item} style={styles.favorites} />
-          ) : null}
-        </View>
+        </Skeleton.Group>
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
-// export default PhotoItem;
-export default React.memo(PhotoItem);
+export default React.memo(PhotoItemSkeletoned);
 
 const styles = StyleSheet.create({
   container: {

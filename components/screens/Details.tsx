@@ -3,8 +3,6 @@ import {
   Image,
   TouchableOpacity,
   useWindowDimensions,
-  ScrollView,
-  View,
 } from "react-native";
 import { MainStackScreenProps } from "../../navigation/types";
 import { useGetPhotoInfoQuery } from "../../store/reducers/photosApi";
@@ -12,20 +10,27 @@ import Loading from "../UIcomponents/Loading";
 import ErrorMessage from "../UIcomponents/ErrorMessage";
 import { IFullPhotoItem } from "../interfaces";
 import FavoritesComponent from "../UIcomponents/FavoritesComponent";
-import { useState } from "react";
+import React, { useState } from "react";
 import ImageView from "react-native-image-viewing";
 import { ImageSource } from "react-native-image-viewing/dist/@types";
-import Animated, { FadeInLeft } from "react-native-reanimated";
+import Animated, { Extrapolation, FadeInLeft, interpolate, useAnimatedProps, useAnimatedStyle, useDerivedValue, useSharedValue } from "react-native-reanimated";
 import { IMG_TEST_ARRAY } from "../../config/appConfig";
 import SimpleCarousel from "../UIcomponents/SimpleCarousel";
+import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
 
 interface IImage {
   original: string;
 }
 const FAVORITES_SIZE = 44;
+const MIN_IMAGE_SIZE = 150;
 
 const AnimateTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
+
+// const AnimateSimpleCarousel =
+//   Animated.createAnimatedComponent(SimpleCarousel);
+// const AnimateSimpleCarousel =
+//   Animated.createAnimatedComponent(React.forwardRef(SimpleCarousel));
 
 export default function Details({ route }: MainStackScreenProps<"Details">) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -55,6 +60,30 @@ export default function Details({ route }: MainStackScreenProps<"Details">) {
   const handleCarouselState = (index: number) => {
     setImageIndex(index);
   }
+  const { animatedValue: scrollY, handleScroll } = useAnimatedScrollValueFor(windowWidth - MIN_IMAGE_SIZE)
+  const carouselWidth = useDerivedValue(() => {
+    return windowWidth - scrollY.value;
+  });
+  const animatedCarouselProps = useAnimatedProps(() => {
+    // const length = interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP)
+    return {
+      itemWidth: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP),
+      itemHeight: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP),
+    };
+  });
+  const carouselContainerAnimatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        // { scale: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [1, MIN_IMAGE_SIZE / windowWidth], Extrapolation.CLAMP) },
+      ],
+    };
+  });
+  const zoomContainerAnimatedStyles = useAnimatedStyle(() => {
+    return {
+      bottom: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [10, 10 - MIN_IMAGE_SIZE + windowWidth], Extrapolation.CLAMP)
+    }
+  });
+
   if (isLoading) {
     return <Loading />;
   }
@@ -64,34 +93,8 @@ export default function Details({ route }: MainStackScreenProps<"Details">) {
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Animated.View
-        entering={FadeInLeft.duration(500).delay(300)}>
-        <SimpleCarousel
-          data={images}
-          itemWidth={windowWidth}
-          itemHeight={windowWidth}
-          horizontal={true}
-          onStateChange={handleCarouselState}
-        />
-        <FavoritesComponent
-          item={photo}
-          style={[styles.favorites]}
-          size={FAVORITES_SIZE}
-        />
-        <TouchableOpacity style={styles.zoomContainer}
-          onPress={handleImagePress}>
-          <Image style={styles.zoomImage} source={require("../../assets/icon_zoom.png")} />
-        </TouchableOpacity>
-        <ImageView
-          images={getImageSource(images)}
-          imageIndex={imageIndex}
-          keyExtractor={(imageSrc, index) => imageSrc + index.toString()}
-          visible={imagePreviewVisible}
-          onRequestClose={() => setImagePreviewVisible(false)}
-        />
-      </Animated.View>
-      <ScrollView>
+    <>
+      <Animated.ScrollView contentContainerStyle={variableStyles(windowWidth).infoContainer} onScroll={handleScroll}>
         <Animated.Text
           style={styles.title}
           entering={FadeInLeft.duration(500).delay(400)}
@@ -102,13 +105,46 @@ export default function Details({ route }: MainStackScreenProps<"Details">) {
           style={styles.description}
           entering={FadeInLeft.duration(500).delay(600)}
         >
-          {title} {title} {title} {title}{title} {title} {title}
+          {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title}
         </Animated.Text>
-      </ScrollView>
-    </View>
+      </Animated.ScrollView>
+      <Animated.View
+        style={[styles.imageContainer]}
+        entering={FadeInLeft.duration(500).delay(300)}>
+        <SimpleCarousel
+          data={images}
+          itemWidth={windowWidth}
+          itemHeight={windowWidth}
+          horizontal={true}
+          onStateChange={handleCarouselState}
+          containerStyle={[styles.carouselContainerStyle, carouselContainerAnimatedStyles]}
+        />
+        <FavoritesComponent
+          item={photo}
+          style={styles.favorites}
+          size={FAVORITES_SIZE}
+        />
+        <AnimateTouchableOpacity style={[styles.zoomContainer, zoomContainerAnimatedStyles]}
+          onPress={handleImagePress}>
+          <Image style={styles.zoomImage} source={require("../../assets/icon_zoom.png")} />
+        </AnimateTouchableOpacity>
+        <ImageView
+          images={getImageSource(images)}
+          imageIndex={imageIndex}
+          keyExtractor={(imageSrc, index) => imageSrc + index.toString()}
+          visible={imagePreviewVisible}
+          onRequestClose={() => setImagePreviewVisible(false)}
+        />
+      </Animated.View>
+    </>
   );
 }
 
+const variableStyles = (windowWidth: number) => StyleSheet.create({
+  infoContainer: {
+    paddingTop: windowWidth,
+  },
+})
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -116,9 +152,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   imageContainer: {
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: "white",
+    position: "absolute",
+    transformOrigin: 'top left',
+  },
+  carouselContainerStyle: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    transformOrigin: 'top left',
   },
   image: {
     resizeMode: "contain",

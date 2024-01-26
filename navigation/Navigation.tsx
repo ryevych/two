@@ -53,9 +53,9 @@ export default function Navigation() {
               <MainStack.Group>
                 <MainStack.Screen name="Home" component={Home} />
                 <MainStack.Screen name="Details" component={Details} />
-                <MainStack.Group screenOptions={{ presentation: 'modal' }}>
+                {/* <MainStack.Group screenOptions={{ presentation: 'modal' }}>
                   <MainStack.Screen name="ImagePreview" component={ImagePreview} />
-                </MainStack.Group>
+                </MainStack.Group> */}
               </MainStack.Group>
             </MainStack.Navigator>
           )}

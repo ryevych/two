@@ -6,36 +6,19 @@ import PhotoList from "../UIcomponents/PhotoList";
 import { useState } from "react";
 import SearchElement from "../UIcomponents/SearchElement";
 import { IPhotoItem } from "../interfaces";
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-import { clamp } from "../../worklets/worklets";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
 
 const SEARCH_HEIGHT = 50;
 const PHOTO_PLACEHOLDER_DATA: IPhotoItem[] = Array(6).fill({}).map((_, index) => ({ id: index, title: "", thumbnailUrl: "" }));
 
 export default function Home({ navigation }: MainStackScreenProps<"Home">) {
-
   const { data: photos, isError, isLoading } = useGetAllPhotosQuery(100);
   const handleItemPress = (itemId: number) => {
     navigation.navigate("Details", { itemId: itemId });
   };
   const [searchText, setSearchText] = useState("");
-
-  const scrollY = useSharedValue(0);
-  const handleScroll = useAnimatedScrollHandler<{ prevY?: number }>({
-    onBeginDrag: (event, ctx) => {
-      ctx.prevY = event.contentOffset.y;
-    },
-    onScroll: (event, ctx) => {
-      let { y } = event.contentOffset;
-      if (y < 0) {
-        y = 0;
-      }
-      const dy = y - (ctx?.prevY ?? 0);
-      scrollY.value = clamp(scrollY.value + dy, 0, SEARCH_HEIGHT);
-      ctx.prevY = y;
-    },
-  });
-
+  const { animatedValue: scrollY, handleScroll } = useAnimatedScrollValueFor(SEARCH_HEIGHT)
   const searchAnimatedStyles = useAnimatedStyle(() => {
     return {
       top: -scrollY.value,
@@ -45,10 +28,10 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
   if (isError) {
     return <ErrorMessage />;
   }
-  console.log(`render Home `);
 
+  console.log(`render Home `);
   return (
-    <Animated.View style={[styles.container]} >
+    <Animated.View style={styles.container} >
       <PhotoList
         data={
           photos

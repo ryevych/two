@@ -6,8 +6,10 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+    ViewStyle,
 } from "react-native";
 import Animated, {
+    SharedValue,
     interpolate,
     useAnimatedStyle,
     useSharedValue,
@@ -25,6 +27,7 @@ interface ISimpleCarouselProps {
     itemWidth: number;
     itemHeight: number;
     onStateChange?: (state: number) => void;
+    containerStyle?: ViewStyle | ViewStyle[];
 }
 
 const DOT_DIAMETR = 10;
@@ -36,7 +39,8 @@ function SimpleCarousel({
     horizontal = false,
     itemWidth,
     itemHeight,
-    onStateChange = (state) => { }
+    onStateChange = (state) => { },
+    containerStyle = [],
 }: ISimpleCarouselProps) {
     const scrollX = useSharedValue(0);
 
@@ -69,8 +73,9 @@ function SimpleCarousel({
 
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    console.log(itemWidth);
     return (
-        <View>
+        <Animated.View style={containerStyle}>
             <FlatList
                 data={data}
                 ref={listRef}
@@ -98,7 +103,7 @@ function SimpleCarousel({
                     style={[styles.dotIndicator, dotIndicatorAnimatedStyle]}
                 />
             </View>
-        </View>
+        </Animated.View>
     );
 }
 

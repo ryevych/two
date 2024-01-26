@@ -1,5 +1,4 @@
 import {
-  FlatList,
   useWindowDimensions,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -7,10 +6,10 @@ import {
   StyleProp,
   ViewStyle,
 } from "react-native";
-import PhotoItem from "./PhotoItem";
 import { IPhotoItem } from "../interfaces";
 import React, { useCallback } from "react";
-import Animated, { AnimatedStyleProp, SharedValue, useSharedValue } from "react-native-reanimated";
+import Animated, { AnimatedStyle, useSharedValue } from "react-native-reanimated";
+import PhotoItemSkeletoned from "./PhotoItemSkeletoned";
 
 export interface IPhotoListProps {
   data: IPhotoItem[];
@@ -19,10 +18,9 @@ export interface IPhotoListProps {
   onScroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
   numColumns: number;
   isLoading: boolean;
-  contentContainerStyle?: StyleProp<ViewStyle> | SharedValue<StyleProp<ViewStyle>>;
+  contentContainerStyle?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<IPhotoItem>);
 function PhotoList({
   data,
   handleItemPress,
@@ -43,16 +41,25 @@ function PhotoList({
     },
     []
   );
+
+  // const getItemLayout = (data: ArrayLike<IPhotoItem> | null | undefined, index: number) => (
+  //   {
+  //     index,
+  //     length: 400,
+  //     offset: 400 * index,
+  //   }
+  // )
   return (
-    <AnimatedFlatList
+    <Animated.FlatList
       data={data}
       contentContainerStyle={contentContainerStyle}
       numColumns={numColumns}
       initialNumToRender={6}
+      // getItemLayout={getItemLayout}
       onViewableItemsChanged={onViewableItemsChanged}
       onScroll={onScroll}
       renderItem={({ item }) => (
-        <PhotoItem
+        <PhotoItemSkeletoned
           item={item}
           handleItemPress={handleItemPress}
           animateItemOnLongPress={animateItemOnLongPress}
@@ -70,4 +77,3 @@ function PhotoList({
 }
 
 export default PhotoList;
-// export default React.memo(PhotoList);

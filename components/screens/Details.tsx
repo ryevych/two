@@ -15,7 +15,7 @@ import ImageView from "react-native-image-viewing";
 import { ImageSource } from "react-native-image-viewing/dist/@types";
 import Animated, { Extrapolation, FadeInLeft, interpolate, useAnimatedProps, useAnimatedStyle, useDerivedValue, useSharedValue } from "react-native-reanimated";
 import { IMG_TEST_ARRAY } from "../../config/appConfig";
-import SimpleCarousel from "../UIcomponents/SimpleCarousel";
+import SimpleCarousel from "../UIcomponents/SimpleCarousel/SimpleCarousel";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
 
 interface IImage {

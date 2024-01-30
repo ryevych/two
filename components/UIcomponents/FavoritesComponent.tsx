@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { favoritesActions } from "../../store/reducers/favoriteReducer";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import AnimatedIconsComponent, { AnimatedIconsComponentPartitionalProps } from "./AnimatedIconsComponent";
 import { IPhotoItem } from "../interfaces";
 
@@ -14,9 +14,6 @@ function FavoritesComponent({
   size,
   animated = true,
 }: FavoritesComponentProps) {
-  useEffect(() => {
-    console.log(`changes because of  ${style}`);
-  }, [style])
   const { favorites } = useAppSelector((state) => state.favoriteReducer);
 
   const isFavorite = favorites.findIndex((el) => el.id === item.id) > -1;
@@ -39,5 +36,5 @@ function FavoritesComponent({
   )
 }
 
-// export default FavoritesComponent;
-export default React.memo(FavoritesComponent);
+export default FavoritesComponent;
+// export default React.memo(FavoritesComponent);

@@ -112,8 +112,8 @@ function PhotoItem({
   );
 }
 
-// export default PhotoItem;
-export default React.memo(PhotoItem);
+export default PhotoItem;
+// export default React.memo(PhotoItem);
 
 const styles = StyleSheet.create({
   container: {

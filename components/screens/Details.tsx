@@ -13,10 +13,11 @@ import FavoritesComponent from "../UIcomponents/FavoritesComponent";
 import React, { useState } from "react";
 import ImageView from "react-native-image-viewing";
 import { ImageSource } from "react-native-image-viewing/dist/@types";
-import Animated, { Extrapolation, FadeInLeft, interpolate, useAnimatedProps, useAnimatedStyle, useDerivedValue, useSharedValue } from "react-native-reanimated";
+import Animated, { FadeInLeft, useAnimatedStyle } from "react-native-reanimated";
 import { IMG_TEST_ARRAY } from "../../config/appConfig";
-import SimpleCarousel from "../UIcomponents/SimpleCarousel/SimpleCarousel";
+import SimpleCarousel from "../UIcomponents/SimpleCarousel";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
+import { BlurView } from 'expo-blur';
 
 interface IImage {
   original: string;
@@ -26,11 +27,6 @@ const MIN_IMAGE_SIZE = 150;
 
 const AnimateTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
-
-// const AnimateSimpleCarousel =
-//   Animated.createAnimatedComponent(SimpleCarousel);
-// const AnimateSimpleCarousel =
-//   Animated.createAnimatedComponent(React.forwardRef(SimpleCarousel));
 
 export default function Details({ route }: MainStackScreenProps<"Details">) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
@@ -61,26 +57,9 @@ export default function Details({ route }: MainStackScreenProps<"Details">) {
     setImageIndex(index);
   }
   const { animatedValue: scrollY, handleScroll } = useAnimatedScrollValueFor(windowWidth - MIN_IMAGE_SIZE)
-  const carouselWidth = useDerivedValue(() => {
-    return windowWidth - scrollY.value;
-  });
-  const animatedCarouselProps = useAnimatedProps(() => {
-    // const length = interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP)
-    return {
-      itemWidth: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP),
-      itemHeight: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [windowWidth, MIN_IMAGE_SIZE], Extrapolation.CLAMP),
-    };
-  });
-  const carouselContainerAnimatedStyles = useAnimatedStyle(() => {
-    return {
-      transform: [
-        // { scale: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [1, MIN_IMAGE_SIZE / windowWidth], Extrapolation.CLAMP) },
-      ],
-    };
-  });
   const zoomContainerAnimatedStyles = useAnimatedStyle(() => {
     return {
-      bottom: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [10, 10 - MIN_IMAGE_SIZE + windowWidth], Extrapolation.CLAMP)
+      // bottom: interpolate(scrollY.value, [0, windowWidth - MIN_IMAGE_SIZE], [10, 10 - MIN_IMAGE_SIZE + windowWidth], Extrapolation.CLAMP)
     }
   });
 
@@ -108,34 +87,35 @@ export default function Details({ route }: MainStackScreenProps<"Details">) {
           {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title} {title}
         </Animated.Text>
       </Animated.ScrollView>
-      <Animated.View
-        style={[styles.imageContainer]}
-        entering={FadeInLeft.duration(500).delay(300)}>
-        <SimpleCarousel
-          data={images}
-          itemWidth={windowWidth}
-          itemHeight={windowWidth}
-          horizontal={true}
-          onStateChange={handleCarouselState}
-          containerStyle={[styles.carouselContainerStyle, carouselContainerAnimatedStyles]}
-        />
-        <FavoritesComponent
-          item={photo}
-          style={styles.favorites}
-          size={FAVORITES_SIZE}
-        />
-        <AnimateTouchableOpacity style={[styles.zoomContainer, zoomContainerAnimatedStyles]}
-          onPress={handleImagePress}>
-          <Image style={styles.zoomImage} source={require("../../assets/icon_zoom.png")} />
-        </AnimateTouchableOpacity>
-        <ImageView
-          images={getImageSource(images)}
-          imageIndex={imageIndex}
-          keyExtractor={(imageSrc, index) => imageSrc + index.toString()}
-          visible={imagePreviewVisible}
-          onRequestClose={() => setImagePreviewVisible(false)}
-        />
-      </Animated.View>
+      <BlurView style={styles.carouselAndIconContainer} intensity={50} experimentalBlurMethod={'dimezisBlurView'} >
+        <Animated.View
+          entering={FadeInLeft.duration(500).delay(300)}>
+          <SimpleCarousel
+            data={images}
+            itemWidth={windowWidth}
+            itemHeight={windowWidth}
+            horizontal={true}
+            onStateChange={handleCarouselState}
+            decreaseFor={scrollY}
+          />
+          <FavoritesComponent
+            item={photo}
+            style={styles.favorites}
+            size={FAVORITES_SIZE}
+          />
+          <AnimateTouchableOpacity style={[styles.zoomContainer, zoomContainerAnimatedStyles]}
+            onPress={handleImagePress}>
+            <Image style={styles.zoomImage} source={require("../../assets/icon_zoom.png")} />
+          </AnimateTouchableOpacity>
+          <ImageView
+            images={getImageSource(images)}
+            imageIndex={imageIndex}
+            keyExtractor={(imageSrc, index) => imageSrc + index.toString()}
+            visible={imagePreviewVisible}
+            onRequestClose={() => setImagePreviewVisible(false)}
+          />
+        </Animated.View>
+      </BlurView>
     </>
   );
 }
@@ -151,13 +131,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  imageContainer: {
+  carouselAndIconContainer: {
     position: "absolute",
-    transformOrigin: 'top left',
-  },
-  carouselContainerStyle: {
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     transformOrigin: 'top left',
   },
   image: {

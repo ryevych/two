@@ -1,8 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GestureResponderEvent, StyleProp, TextStyle, View } from "react-native";
 import React from "react";
-import { ITEM_FADEIN_DURATION } from "../../config/appConfig";
-import Animated, { FadeIn, FadingTransition, LinearTransition, SharedValue, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { SharedValue, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 
 const MAX_SCALE = 1.15;
 const INIT_SCALE = 1;

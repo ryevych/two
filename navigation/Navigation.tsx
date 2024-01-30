@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Favorites from "../components/screens/Favorites";
 import Details from "../components/screens/Details";
 import Home from "../components/screens/Home";
-import ImagePreview from "../components/screens/ImagePreview";
 import {
   MainBottomTabParamList,
   MainStackParamList,

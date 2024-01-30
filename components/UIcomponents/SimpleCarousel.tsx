@@ -12,9 +12,10 @@ import Animated, {
     SharedValue,
     interpolate,
     useAnimatedStyle,
+    useDerivedValue,
     useSharedValue,
 } from "react-native-reanimated";
-import Image from 'react-native-image-progress';
+// import Image from 'react-native-image-progress';
 
 interface IItem {
     thumbnail: string;
@@ -28,11 +29,14 @@ interface ISimpleCarouselProps {
     itemHeight: number;
     onStateChange?: (state: number) => void;
     containerStyle?: ViewStyle | ViewStyle[];
+    decreaseFor?: SharedValue<number>;
 }
 
 const DOT_DIAMETR = 10;
 const DOT_SPACING = 12;
 const DOT_INDICATOR_DIAMETR = DOT_DIAMETR + DOT_SPACING;
+
+// const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 function SimpleCarousel({
     data,
@@ -41,12 +45,15 @@ function SimpleCarousel({
     itemHeight,
     onStateChange = (state) => { },
     containerStyle = [],
+    decreaseFor = useSharedValue(0),
 }: ISimpleCarouselProps) {
     const scrollX = useSharedValue(0);
+    const animatedItemWidth = useDerivedValue(() => itemWidth - decreaseFor.value)
+    const animatedItemHeight = useDerivedValue(() => itemHeight - decreaseFor.value)
 
     const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         scrollX.value = e.nativeEvent.contentOffset.x;
-        const index = Math.round(scrollX.value / itemWidth);
+        const index = Math.round(scrollX.value / animatedItemWidth.value);
         setCurrentIndex(index);
         onStateChange(index);
     };
@@ -73,10 +80,16 @@ function SimpleCarousel({
 
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    const animatedImageStyle = useAnimatedStyle(() => {
+        return {
+            width: animatedItemWidth.value,
+            height: animatedItemHeight.value,
+        }
+    })
     console.log(itemWidth);
     return (
-        <Animated.View style={containerStyle}>
-            <FlatList
+        <View style={[styles.imageContainer, containerStyle]}>
+            <Animated.FlatList
                 data={data}
                 ref={listRef}
                 horizontal={horizontal}
@@ -87,10 +100,12 @@ function SimpleCarousel({
                 onScroll={handleScroll}
                 renderItem={({ item }) => {
                     return (
-                        <Image
-                            source={{ uri: item.original }}
-                            style={[styles.image, { width: itemWidth, height: itemHeight }]}
-                        />
+                        <Animated.View style={[styles.imageContainer, { width: itemWidth, height: animatedItemHeight }]}>
+                            <Animated.Image
+                                source={{ uri: item.original }}
+                                style={[styles.image, animatedImageStyle]}
+                            />
+                        </Animated.View>
                     );
                 }}
                 keyExtractor={(_, index) => index.toString()}
@@ -103,14 +118,21 @@ function SimpleCarousel({
                     style={[styles.dotIndicator, dotIndicatorAnimatedStyle]}
                 />
             </View>
-        </Animated.View>
+        </View>
     );
 }
 
 export default SimpleCarousel;
 
 const styles = StyleSheet.create({
-    image: { resizeMode: "cover" },
+    container: {
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+    },
+    image: {
+        overflow: 'hidden',
+        resizeMode: "cover",
+    },
     pagination: {
         position: "absolute",
         bottom: 15,
@@ -133,5 +155,11 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: (DOT_DIAMETR - DOT_INDICATOR_DIAMETR) / 2,
         left: (DOT_DIAMETR - DOT_INDICATOR_DIAMETR) / 2,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        // backgroundColor: 'rgba(255,255,255,0.2)',
     },
 });

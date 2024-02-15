@@ -12,13 +12,24 @@ import {
 } from "./types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Login from "../components/screens/Login";
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "../FirebaseConfig";
-import { userActions } from "../store/reducers/userReducer";
+import { ActivityIndicator } from "react-native";
 
 export default function Navigation() {
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+
+  useEffect(() => {
+    setIsLoadingUser(true);
+    const unsub = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setIsAuthorized(!!user);
+      setIsLoadingUser(false);
+    });
+    return unsub;
+  }, []);
+
   const MainStack = createNativeStackNavigator<MainStackParamList>();
   const MainBottomTab = createBottomTabNavigator<MainBottomTabParamList>();
 
@@ -43,17 +54,19 @@ export default function Navigation() {
     };
   };
 
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    const unsub = onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      dispatch(userActions.saveUser(user));
-    });
-    return unsub;
-  }, [])
+  if (isLoadingUser) {
+    return (
+      <ActivityIndicator
+        style={{ alignItems: "center", justifyContent: "center", flex: 1 }}
+        size="large"
+        color="#0000ff"
+      />
+    );
+  }
 
-  const { user } = useAppSelector((state) => state.userReducer);
-  console.log(JSON.stringify(user, null, 2));
-  if (!user) { return <Login /> }
+  if (!isAuthorized) {
+    return <Login />;
+  }
 
   return (
     <NavigationContainer>

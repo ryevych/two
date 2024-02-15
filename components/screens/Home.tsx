@@ -8,11 +8,14 @@ import SearchElement from "../UIcomponents/SearchElement";
 import { IPhotoItem } from "../interfaces";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
-import { useAppDispatch } from "../../hooks/redux";
-import { userActions } from "../../store/reducers/userReducer";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
+// import { useAppDispatch } from "../../hooks/redux";
+// import { userActions } from "../../store/reducers/userReducer";
 
 const SEARCH_HEIGHT = 50;
-const PHOTO_PLACEHOLDER_DATA: IPhotoItem[] = Array(6).fill({}).map((_, index) => ({ id: index, title: "", thumbnailUrl: "" }));
+const PHOTO_PLACEHOLDER_DATA: IPhotoItem[] = Array(6)
+  .fill({})
+  .map((_, index) => ({ id: index, title: "", thumbnailUrl: "" }));
 
 export default function Home({ navigation }: MainStackScreenProps<"Home">) {
   const { data: photos, isError, isLoading } = useGetAllPhotosQuery(100);
@@ -20,16 +23,18 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
     navigation.navigate("Details", { itemId: itemId });
   };
   const [searchText, setSearchText] = useState("");
-  const { animatedValue: scrollY, handleScroll } = useAnimatedScrollValueFor(SEARCH_HEIGHT)
+  const { animatedValue: scrollY, handleScroll } =
+    useAnimatedScrollValueFor(SEARCH_HEIGHT);
   const searchAnimatedStyles = useAnimatedStyle(() => {
     return {
       top: -scrollY.value,
     };
   });
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const logOut = () => {
-    dispatch(userActions.saveUser(null))
-  }
+    // dispatch(userActions.saveUser(null))
+    FIREBASE_AUTH.signOut();
+  };
 
   if (isError) {
     return <ErrorMessage />;
@@ -37,8 +42,8 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
 
   console.log(`render Home `);
   return (
-    <Animated.View style={styles.container} >
-      <Button title='LogOut' onPress={logOut} />
+    <Animated.View style={styles.container}>
+      <Button title="LogOut" onPress={logOut} />
       <PhotoList
         data={
           photos
@@ -51,7 +56,13 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
         onScroll={handleScroll}
         contentContainerStyle={{ paddingTop: SEARCH_HEIGHT }}
       />
-      {!isLoading && <SearchElement style={[styles.searchInput, searchAnimatedStyles]} searchText={searchText} setSearchText={setSearchText} />}
+      {!isLoading && (
+        <SearchElement
+          style={[styles.searchInput, searchAnimatedStyles]}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
+      )}
     </Animated.View>
   );
 }

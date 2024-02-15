@@ -10,15 +10,15 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from 'redux-persist'
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "redux-persist";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage: AsyncStorage,
-  blacklist: [photosApi.reducerPath, "user"],
-}
-const persistedReducer = persistReducer(persistConfig, rootReducer)
+  blacklist: [photosApi.reducerPath],
+};
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
@@ -30,7 +30,7 @@ const store = configureStore({
     }).concat(photosApi.middleware),
 });
 
-export const persistor = persistStore(store)
+export const persistor = persistStore(store);
 
 export default store;
 export type RootState = ReturnType<typeof rootReducer>;

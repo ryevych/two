@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Button, StyleSheet } from "react-native";
 import { MainStackScreenProps } from "../../navigation/types";
 import { useGetAllPhotosQuery } from "../../store/reducers/photosApi";
 import ErrorMessage from "../UIcomponents/ErrorMessage";
@@ -8,6 +8,8 @@ import SearchElement from "../UIcomponents/SearchElement";
 import { IPhotoItem } from "../interfaces";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
+import { useAppDispatch } from "../../hooks/redux";
+import { userActions } from "../../store/reducers/userReducer";
 
 const SEARCH_HEIGHT = 50;
 const PHOTO_PLACEHOLDER_DATA: IPhotoItem[] = Array(6).fill({}).map((_, index) => ({ id: index, title: "", thumbnailUrl: "" }));
@@ -24,6 +26,10 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
       top: -scrollY.value,
     };
   });
+  const dispatch = useAppDispatch();
+  const logOut = () => {
+    dispatch(userActions.saveUser(null))
+  }
 
   if (isError) {
     return <ErrorMessage />;
@@ -32,6 +38,7 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
   console.log(`render Home `);
   return (
     <Animated.View style={styles.container} >
+      <Button title='LogOut' onPress={logOut} />
       <PhotoList
         data={
           photos

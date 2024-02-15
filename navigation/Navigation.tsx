@@ -11,6 +11,12 @@ import {
   TabScreenOptionType,
 } from "./types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Login from "../components/screens/Login";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "../FirebaseConfig";
+import { userActions } from "../store/reducers/userReducer";
 
 export default function Navigation() {
   const MainStack = createNativeStackNavigator<MainStackParamList>();
@@ -36,6 +42,18 @@ export default function Navigation() {
       tabBarLabelStyle: { fontSize: 14 },
     };
   };
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      dispatch(userActions.saveUser(user));
+    });
+    return unsub;
+  }, [])
+
+  const { user } = useAppSelector((state) => state.userReducer);
+  console.log(JSON.stringify(user, null, 2));
+  if (!user) { return <Login /> }
 
   return (
     <NavigationContainer>

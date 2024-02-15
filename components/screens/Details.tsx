@@ -1,23 +1,23 @@
 import {
-  StyleSheet,
   Image,
+  StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { MainStackScreenProps } from "../../navigation/types";
-import { useGetPhotoInfoQuery } from "../../store/reducers/photosApi";
-import Loading from "../UIcomponents/Loading";
-import ErrorMessage from "../UIcomponents/ErrorMessage";
-import { IFullPhotoItem } from "../interfaces";
-import FavoritesComponent from "../UIcomponents/FavoritesComponent";
+import { BlurView } from 'expo-blur';
 import React, { useState } from "react";
+import Loading from "../UIcomponents/Loading";
+import { IFullPhotoItem } from "../interfaces";
 import ImageView from "react-native-image-viewing";
-import { ImageSource } from "react-native-image-viewing/dist/@types";
-import Animated, { FadeInLeft, useAnimatedStyle } from "react-native-reanimated";
+import ErrorMessage from "../UIcomponents/ErrorMessage";
 import { IMG_TEST_ARRAY } from "../../config/appConfig";
 import SimpleCarousel from "../UIcomponents/SimpleCarousel";
+import { MainStackScreenProps } from "../../navigation/types";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
-import { BlurView } from 'expo-blur';
+import FavoritesComponent from "../UIcomponents/FavoritesComponent";
+import { ImageSource } from "react-native-image-viewing/dist/@types";
+import { useGetPhotoInfoQuery } from "../../store/reducers/photosApi";
+import Animated, { FadeInLeft, useAnimatedStyle } from "react-native-reanimated";
 
 interface IImage {
   original: string;

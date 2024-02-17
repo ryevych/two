@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "16673019421",
+    "project_id": "two-auth-d4b49",
+    "storage_bucket": "two-auth-d4b49.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16673019421:android:7d24a768893cb4054c98f4",
+        "android_client_info": {
+          "package_name": "com.ryevych.two"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_61dVC0Va_8tqWHA7WwFsN-zC0QCuTL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

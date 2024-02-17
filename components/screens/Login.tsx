@@ -1,40 +1,57 @@
 import { useState } from 'react';
 import { ActivityIndicator, Button, KeyboardAvoidingView, TextInput, View } from 'react-native';
-import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { StyleSheet } from 'react-native';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+// import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import auth from '@react-native-firebase/auth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const auth = FIREBASE_AUTH;
+    // const auth = FIREBASE_AUTH;
 
     const signIn = async () => {
         setLoading(true);
-        try {
-            const response = await signInWithEmailAndPassword(auth, email, password);
-            // console.log("signIn response: ", response);
-            // console.log("signIn response: ", JSON.stringify(response, null, 2));
-        } catch (err: any) {
-            // console.log("signIn error: ", JSON.parse(err));
-            alert('Failed to sign in: ' + err.message)
-        } finally {
-            setLoading(false);
-        }
+        const response = await auth().signInWithEmailAndPassword(email, password)
+            .then(() => {
+                // console.log("signIn response: ", JSON.stringify(response, null, 2));
+            })
+            .catch(error => {
+                alert('Failed to sign in: ' + error.message)
+            });
+        setLoading(false);
+
+        // try {
+        // const response = await signInWithEmailAndPassword(auth, email, password);
+        // console.log("signIn response: ", response);
+        // console.log("signIn response: ", JSON.stringify(response, null, 2));
+        // } catch (err: any) {
+        // console.log("signIn error: ", JSON.parse(err));
+        // alert('Failed to sign in: ' + err.message)
+        // } finally {
+        //     setLoading(false);
+        // }
     }
 
     const signUp = async () => {
         setLoading(true);
-        try {
-            const response = await createUserWithEmailAndPassword(auth, email, password);
-            // console.log("signUp response: ", response);
-        } catch (err: any) {
-            // console.log("signUp error: ", JSON.parse(err));
-            alert('Failed to create user: ' + err.message)
-        } finally {
-            setLoading(false);
-        }
+        const response = await auth().createUserWithEmailAndPassword(email, password)
+            .then(() => {
+                // console.log("signUp response: ", JSON.stringify(response, null, 2));
+            })
+            .catch(error => {
+                alert('Failed to create user: ' + error.message)
+            });
+        setLoading(false);
+        // try {
+        //     const response = await createUserWithEmailAndPassword(auth, email, password);
+        // console.log("signUp response: ", response);
+        // } catch (err: any) {
+        // console.log("signUp error: ", JSON.parse(err));
+        // alert('Failed to create user: ' + err.message)
+        // } finally {
+        //     setLoading(false);
+        // }
     }
 
     return (

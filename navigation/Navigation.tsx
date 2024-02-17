@@ -13,8 +13,9 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Login from "../components/screens/Login";
 import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_AUTH } from "../FirebaseConfig";
+// import { onAuthStateChanged } from "firebase/auth";
+// import { FIREBASE_AUTH } from "../FirebaseConfig";
+import auth from '@react-native-firebase/auth';
 import { ActivityIndicator } from "react-native";
 
 export default function Navigation() {
@@ -23,7 +24,7 @@ export default function Navigation() {
 
   useEffect(() => {
     setIsLoadingUser(true);
-    const unsub = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+    const unsub = auth().onAuthStateChanged((user) => {
       setIsAuthorized(!!user);
       setIsLoadingUser(false);
     });

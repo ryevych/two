@@ -8,9 +8,10 @@ import SearchElement from "../UIcomponents/SearchElement";
 import { IPhotoItem } from "../interfaces";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import useAnimatedScrollValueFor from "../../hooks/animatedScroll";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+// import { FIREBASE_AUTH } from "../../FirebaseConfig";
 // import { useAppDispatch } from "../../hooks/redux";
 // import { userActions } from "../../store/reducers/userReducer";
+import auth from '@react-native-firebase/auth';
 
 const SEARCH_HEIGHT = 50;
 const PHOTO_PLACEHOLDER_DATA: IPhotoItem[] = Array(6)
@@ -33,7 +34,8 @@ export default function Home({ navigation }: MainStackScreenProps<"Home">) {
   // const dispatch = useAppDispatch();
   const logOut = () => {
     // dispatch(userActions.saveUser(null))
-    FIREBASE_AUTH.signOut();
+    auth().signOut();
+    // FIREBASE_AUTH.signOut();
   };
 
   if (isError) {
